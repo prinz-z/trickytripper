@@ -218,10 +218,15 @@
     <string name="payment_edit_view_label_radio_split_evenly">Split evenly</string>
     <string name="payment_edit_view_label_radio_custom_split">Custom split</string>
     <string name="payment_edit_view_textView_payee_label_amount">Amount</string>
+    <string name="payment_edit_view_textView_payee_label_weight">Weight</string>
     <string name="payment_edit_view_textView_payee_label_spent_by">Debited to</string>
     <string name="payment_edit_view_label_payed_by">Paid by</string>
     <string name="payment_edit_view_textView_label_amount">Amount</string>
     <string name="payment_edit_view_button_divide_rest">Divide rest among blanks</string>
+    <string-array name="payment_edit_view_spinner_amount_weight">
+        <item>@string/payment_edit_view_textView_payee_label_amount</item>
+        <item>@string/payment_edit_view_textView_payee_label_weight</item>
+    </string-array>
     <!-- ==================== Context menu participants ====================== -->
     <string name="participant_fktn_create_payment">Create payment</string>
     <string name="participant_fktn_transfer_money">Transfer money</string>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -100,8 +102,7 @@ public class ParticipantSelectionActivity extends ActionBarActivity {
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setId(R.id.payment_edit_selection_dialog_list_view);
-
-
+        
         if (isAmountBiggerZero(currentTotalAmount)) {
             checkBox.setVisibility(View.VISIBLE);
             checkBox.setText(getDivisionCheckboxOnParticipantSelectionText(currentTotalAmount));

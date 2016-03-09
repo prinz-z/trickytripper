@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditText
+        android:id="@+id/weight1"
+        android:layout_width="100dp"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"/>
+    <CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@android:id/text1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        style="@style/MediumFont"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/weight1"/>
+
+</RelativeLayout>
