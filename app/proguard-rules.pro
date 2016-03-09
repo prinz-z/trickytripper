@@ -22,10 +22,16 @@
 -keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
 
+-keep public class org.codehaus.**
+-keep public class java.nio.**
+-keep class okio.**
+-keep class com.squareup.okhttp.** { *; }
+-keep interface com.squareup.okhttp.** { *; }
+
 -keep class android.support.v4.app.** { *; }
 -keep interface android.support.v4.app.** { *; }
--keep class com.actionbarsherlock.** { *; }
--keep interface com.actionbarsherlock.** { *; }
+#-keep class org.apache.http.** { *; }
+#-keep interface org.apache.http.** { *; }
 
 -keepattributes *Annotation*
 
@@ -57,5 +63,9 @@
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
-# Fixes: Warning:com.actionbarsherlock.internal.ActionBarSherlockCompat: can't find referenced class com.actionbarsherlock.BuildConfig
--dontwarn com.actionbarsherlock.internal.**
+
+-dontwarn okio.**
+#-dontwarn java.nio.file.Files
+#-dontwarn java.nio.file.Path
+#-dontwarn java.nio.file.OpenOption
+#-dontwarn org.apache.http.**

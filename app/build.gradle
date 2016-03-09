@@ -1,20 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId 'de.koelle.christian.trickytripper'
         minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 15
-        versionName '1.5.2'
-        // ------------> This used to be required for for com.github.jcandksolutions.gradle
-        //packageName "de.koelle.christian.trickytripper"
+        targetSdkVersion 23
+        versionCode 18
+        versionName '1.5.5'
     }
     lintOptions {
         checkReleaseBuilds true
         abortOnError true
+        warning 'InvalidPackage'
     }
     File signFile = rootProject.file('sign/keystore.properties')
     if (signFile.exists()) {
@@ -31,6 +31,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
             zipAlignEnabled true
             shrinkResources true
@@ -41,10 +46,14 @@ android {
     }
     productFlavors {
     }
-}
 
-// ------------> This needs to be after the android block
-//apply plugin: 'android-unit-test'
+    testOptions {
+        unitTests.all {
+            // All the usual Gradle options.
+            //jvmArgs '-XX:MaxPermSize=256m'
+        }
+    }
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -52,8 +61,7 @@ dependencies {
     compile "com.android.support:support-v4:$comAndroidSupport_supportV4Version"
     compile "com.github.machinarius:preferencefragment:$comGithubMachinarius_preferenceFragmentVersion"
 
-    //compile 'com.loopj.android:android-async-http:1.4.6'  //--> Has api changes, does not deliver results when implemented according to API.
+    compile 'com.squareup.okhttp3:okhttp:3.1.2'
     testCompile "junit:junit:$junitVersion"
-    //testCompile "org.robolectric:robolectric:$orgRobolectricRobolectricVersion"
-    //testCompile "org.mockito:mockito-core:$orgMockitoMockitoCoreVersion"
+    testCompile "org.mockito:mockito-core:$orgMockitoMockitoCoreVersion"
 }
