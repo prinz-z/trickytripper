@@ -7,7 +7,7 @@
     <Button
         android:id="@+id/payment_edit_payer_row_view_button_currency"
         android:layout_column="0"
-        android:width="30dp"
+        android:layout_width="60dp"
         android:gravity="center"/>
 
     <EditText
@@ -25,17 +25,15 @@
         android:width="60dp"
         android:inputType="numberDecimal"
         android:focusable="true"
+        android:selectAllOnFocus="true"
         android:focusableInTouchMode="true">
     </EditText>
 
     <TextView
         android:id="@+id/payment_edit_payer_row_view_output_name"
         android:layout_column="3"
-        android:gravity="left|center_vertical"
+        android:gravity="start|top"
         android:paddingLeft="10dp"
-        android:singleLine="false"/>
-
-
-
-
+        android:singleLine="true"
+        android:ellipsize="middle"/>
 </TableRow>

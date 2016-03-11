@@ -1,14 +1,33 @@
 package de.koelle.christian.common.utils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import dalvik.annotation.TestTargetClass;
 import de.koelle.christian.common.primitives.DivisionResult;
 
 public class NumberUtilsTest {
+
+    Random rand;
+
+    @Before
+    public void beforeTests()
+    {
+        rand = new Random();
+    }
+
 
     @Test
     public void testMultiply() {
@@ -159,4 +178,20 @@ public class NumberUtilsTest {
         Assert.assertEquals(0.01d, result.getLoss());
 
     }
+
+    @Test
+    public void testRemainerSimple()
+    {
+
+        BigDecimal a = new BigDecimal(10d);
+        BigDecimal b = new BigDecimal(5d);
+        Assert.assertEquals(a.remainder(b).compareTo(new BigDecimal(0d)), 0);
+
+
+        a = new BigDecimal(1.1d);
+        b = new BigDecimal(1.1d);
+        Assert.assertEquals(a.remainder(b).compareTo(new BigDecimal(0d)), 0);
+
+    }
+
 }

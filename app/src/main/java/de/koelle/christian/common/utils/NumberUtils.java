@@ -1,11 +1,23 @@
 package de.koelle.christian.common.utils;
 
+import android.util.Log;
+
+import org.apache.commons.math3.fraction.BigFraction;
+import org.apache.commons.math3.util.ArithmeticUtils;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import de.koelle.christian.common.primitives.DivisionResult;
 
@@ -146,4 +158,54 @@ public class NumberUtils {
         return ((double) (Math.round(nonRounded * 100))) / 100;
     }
 
+    public static <T>Map<T, BigDecimal> guessReadableWeights(Map<T, BigDecimal> numbersMap, double epsilon, int maxIterations)
+    {
+        // find smallest number
+        BigDecimal smallest = BigDecimal.ZERO;
+        for (BigDecimal num: numbersMap.values().toArray(new BigDecimal[0]))
+        {
+            if (smallest.compareTo(BigDecimal.ZERO) == 0 || num.compareTo(smallest) < 0)
+            {
+                smallest = num;
+            }
+        }
+
+        if (smallest.compareTo(BigDecimal.ZERO) == 0)
+            return numbersMap;
+        HashMap<T, BigFraction> fracResults = new HashMap<>();
+        HashMap<T, BigDecimal> results = new HashMap<>();
+        Set<Integer> denominators = new HashSet<>();
+        for (T key: numbersMap.keySet())
+        {
+            BigDecimal num = numbersMap.get(key);
+            num = num.divide(smallest, Math.max(num.scale(), smallest.scale()), BigDecimal.ROUND_HALF_EVEN);
+
+            BigFraction frac = new BigFraction(num.doubleValue(), epsilon, maxIterations);
+            fracResults.put(key, frac);
+//            Log.i("Fraction", "Numerator: " + frac.getNumerator() + ", Denominator: " + frac.getDenominator());
+            denominators.add(frac.getDenominator().intValue());
+        }
+
+        Integer scm = null;
+        boolean fst = true;
+        for (Integer n: denominators)
+        {
+            if (fst)
+            {
+                fst = false;
+                scm = n;
+            }
+            else
+            {
+                scm = ArithmeticUtils.lcm(scm, n);
+            }
+        }
+
+        for (T key: fracResults.keySet()) {
+            BigFraction frac = fracResults.get(key);
+            frac = frac.multiply(scm);
+            results.put(key, new BigDecimal(frac.doubleValue()));
+        }
+        return results;
+    }
 }

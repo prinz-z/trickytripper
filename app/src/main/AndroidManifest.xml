@@ -24,7 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PaymentEditActivity" />
+        <activity android:name=".activities.PaymentEditActivity"
+            android:theme="@style/AppTheme.WithSpinner"/>
         <activity android:name=".activities.TripEditActivity" />
         <activity
             android:name=".activities.ParticipantEditActivity"
@@ -87,11 +88,6 @@
             android:label="@string/participant_selection_title" >
         </activity>
 
-        <provider
-            android:name=".provider.TrickyTripperFileProvider"
-            android:authorities="de.koelle.christian.trickytripperfileprovider"
-            android:grantUriPermissions="true">
-        </provider>
     </application>
 
 </manifest>

@@ -1,5 +1,9 @@
 <resources>
 
+    <style name="AppTheme.WithSpinner" parent="AppTheme">
+        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- colorPrimary is used for the default action bar background -->
@@ -14,6 +18,7 @@
          theme applied. Likely there will be app compatibility support in the future.-->
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:dropDownItemStyle">@style/Widget.DropDownItemLight</item>
+
 
     </style>
 

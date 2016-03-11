@@ -21,6 +21,12 @@
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
+    <style name="SpinnerItem" parent="@android:style/Widget.TextView.SpinnerItem">
+        <item name="android:textColor">@color/mainDark</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <!-- Copied from the material keyboard-->
     <color name="petrolLight">#ff80cbc4</color>
     <color name="petrolMain">#ff4db6ac</color>

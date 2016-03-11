@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -137,7 +139,9 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
 
         addSpinnerListeners();
 
+        Log.i("PaymentEdit", "about to start buildDebitorInput in onCreate");
         buildDebitorInput();
+        Log.i("PaymentEdit", "just finished buildDebitorInput in onCreate");
         buildPaymentInput();
 
         setVisibilitySpendingTable(!divideEqually);
@@ -150,7 +154,10 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
         amountWeightSpinnerPayee.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                Log.i("PaymentEdit", "about to start buildDebitorInput in SpinnerListener");
                 buildDebitorInput();
+                Log.i("PaymentEdit", "just finished buildDebitorInput in SpinnerListener");
             }
 
             @Override
@@ -275,7 +282,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
     }
 
 
-    private void buildPaymentInput() {
+    private synchronized void buildPaymentInput() {
         TableLayout tableLayout = (TableLayout) findViewById(R.id.paymentView_createPaymentPayerTableLayout);
 
         Map<Participant, Amount> amountMap = payment.getParticipantToPayment();
@@ -291,109 +298,140 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
         updatePayerSum();
     }
 
-    private void buildDebitorInput() {
+    boolean buildInputAtTheMoment = false;
+    private synchronized void buildDebitorInput() {
+        if (buildInputAtTheMoment)
+        {
+            return;
+        }
+        buildInputAtTheMoment = true;
+        Log.i("PaymentEdit", "start buildDebitorInput");
         TableLayout tableLayout = (TableLayout) findViewById(R.id.paymentView_createSpendingTableLayout);
 
         Map<Participant, Amount> amountMap = payment.getParticipantToSpending();
         Map<Participant, EditText> widgetMap = amountDebitorParticipantToWidget;
         Map<Participant, EditText> weightMap = weightDebitorParticipantToWidget;
-        List<View> rowHolder = debitRows;
+//        List<View> rowHolder = debitRows;
 
         Spinner modeSpinner = (Spinner) findViewById(R.id.paymentView_textView_payee_label_amount);
 
-        refreshRows(tableLayout, amountMap, widgetMap, weightMap, rowHolder, false, modeSpinner);
+        Log.i("PaymentEdit", "about to start refreshRows in buildDebitorInput");
+        refreshRows(tableLayout, amountMap, widgetMap, weightMap, /*rowHolder*/debitRows, false, modeSpinner);
+        Log.i("PaymentEdit", "justfinished refreshRows in buildDebitorInput");
 
         setViewVisibility(R.id.paymentView_button_payee_add_further_payees, selectParticipantMakesSense);
 
         updateSpentSum();
 
+        Log.i("PaymentEdit", "end buildDebitorInput");
+        buildInputAtTheMoment = false;
     }
 
-    private void refreshRows(TableLayout tableLayout, Map<Participant, Amount> amountMap,
+    private synchronized void refreshRows(TableLayout tableLayout, Map<Participant, Amount> amountMap,
                              Map<Participant, EditText> widgetMap, Map<Participant, EditText> weightMap, List<View> previousRows, final boolean isPayment, Spinner modeSpinner) {
-        removePreviouslyCreatedRows(tableLayout, previousRows);
-        previousRows.clear();
-        widgetMap.clear();
-        weightMap.clear();
+        Log.i("PaymentEdit", "start refreshrows");
+        synchronized (this) {
+            removePreviouslyCreatedRows(tableLayout, previousRows);
+            previousRows.clear();
+            widgetMap.clear();
+            weightMap.clear();
 
-        TableRow row;
-        Participant p;
-        Amount amount;
+            TableRow row;
+            Participant p;
+            Amount amount;
 
 
-        int dynViewId = (isPayment) ? Rx.DYN_ID_PAYMENT_EDIT_PAYER : Rx.DYN_ID_PAYMENT_EDIT_DEBITED_TO;
+            int dynViewId = (isPayment) ? Rx.DYN_ID_PAYMENT_EDIT_PAYER : Rx.DYN_ID_PAYMENT_EDIT_DEBITED_TO;
 
-        boolean amountMode = true;
+            boolean amountMode = true;
 
-        if (modeSpinner != null && modeSpinner.getSelectedItemPosition() == 1) {
-            amountMode = false;
-        }
-
-        for (int i = 0; i < allRelevantParticipants.size(); i++) {
-            p = allRelevantParticipants.get(i);
-            if (!amountMap.containsKey(p)) {
-                continue;
+            if (modeSpinner != null && modeSpinner.getSelectedItemPosition() == 1) {
+                amountMode = false;
             }
 
-            row = (TableRow) inflate(R.layout.payment_edit_payer_row_view);
-            amount = amountMap.get(p);
+            HashMap<Participant, BigDecimal> precalculatedMap = new HashMap<>();
 
-            EditText editText = (EditText) row.findViewById(R.id.payment_edit_payer_row_view_input_amount);
+            for (int i = 0; i < allRelevantParticipants.size(); i++) {
+                p = allRelevantParticipants.get(i);
+                if (!amountMap.containsKey(p)) {
+                    continue;
+                }
 
-            EditText editWeightText = (EditText) row.findViewById(R.id.payment_edit_payer_row_view_input_weight);
+                row = (TableRow) inflate(R.layout.payment_edit_payer_row_view);
+                amount = amountMap.get(p);
 
-            if (amountMode)
-                setAmountMode(editText, editWeightText);
-            else
-                setWeightMode(editText, editWeightText);
-            //noinspection ResourceType
-            editText.setId(dynViewId);
+                EditText editText = (EditText) row.findViewById(R.id.payment_edit_payer_row_view_input_amount);
 
-            TextView textView = (TextView) row.findViewById(R.id.payment_edit_payer_row_view_output_name);
+                EditText editWeightText = (EditText) row.findViewById(R.id.payment_edit_payer_row_view_input_weight);
 
-            Button buttonCurrency = (Button) row.findViewById(R.id.payment_edit_payer_row_view_button_currency);
-            buttonCurrency.setText(getFktnController().getLoadedTripCurrencySymbol(false));
+                if (amountMode)
+                    setAmountMode(editText, editWeightText);
+                else
+                    setWeightMode(editText, editWeightText);
+                //noinspection ResourceType
+                editText.setId(dynViewId);
 
-            UiUtils.makeProperNumberInput(editText, getDecimalNumberInputUtil().getInputPatternMatcher());
-            UiAmountViewUtils.writeAmountToEditText(amount, editText, getLocale(), getDecimalNumberInputUtil());
+                TextView textView = (TextView) row.findViewById(R.id.payment_edit_payer_row_view_output_name);
 
-            textView.setText(p.getName());
+                Button buttonCurrency = (Button) row.findViewById(R.id.payment_edit_payer_row_view_button_currency);
+                buttonCurrency.setText(getFktnController().getLoadedTripCurrencySymbol(false));
 
-            bindAmountInput(editText, amount, isPayment);
-            bindCurrencyCalculatorAction(buttonCurrency, amount, editText.getId());
+                UiUtils.makeProperNumberInput(editText, getDecimalNumberInputUtil().getInputPatternMatcher());
+                UiAmountViewUtils.writeAmountToEditText(amount, editText, getLocale(), getDecimalNumberInputUtil());
 
-            widgetMap.put(p, editText);
-            weightMap.put(p, editWeightText);
+                textView.setText(p.getName());
 
-            prefillWeight(isPayment, weightMap, widgetMap, p);
+                bindAmountInput(editText, amount, isPayment);
+                bindCurrencyCalculatorAction(buttonCurrency, amount, editText.getId());
 
-            setWeightAction(editWeightText, isPayment, weightMap, widgetMap);
+                widgetMap.put(p, editText);
+                weightMap.put(p, editWeightText);
 
-            previousRows.add(row);
 
-            tableLayout.addView(row, tableLayout.getChildCount());
+                BigDecimal precalculated = callPrefilledWeight(isPayment, weightMap, widgetMap, p);
+                if (precalculated != null)
+                    precalculatedMap.put(p, precalculated);
 
-            dynViewId++;
 
+                previousRows.add(row);
+                Log.i("asdfasdf", "addRow");
+                tableLayout.addView(row, tableLayout.getChildCount());
+
+                dynViewId++;
+            }
+
+            Map<Participant, BigDecimal> guessedNumbersMap = NumberUtils.guessReadableWeights(precalculatedMap, 0.01d, 10); //new BigDecimal(0.01d), 10, precalculatedMap);
+
+            for (Participant p1 : allRelevantParticipants) {
+
+                if (precalculatedMap.containsKey(p1)) {
+
+                    EditText weightField = weightMap.get(p1);
+                    UiAmountViewUtils.writeDoubleToEditText(guessedNumbersMap.get(p1).doubleValue(), weightField, getLocale(), getDecimalNumberInputUtil());
+
+                    EditText editWeightText = weightMap.get(p1);
+                    setWeightAction(editWeightText, isPayment, weightMap, widgetMap);
+                }
+            }
+            if (!isPayment && !amountMode) {
+                calculateWeightedAmounts(isPayment, weightMap, widgetMap);
+            }
         }
-
-        if (!isPayment && !amountMode) {
-            calculateWeightedAmounts(isPayment, weightMap, widgetMap);
-        }
+        Log.i("PaymentEdit", "end refreshrows");
     }
 
-    private void prefillWeight(boolean isPayment, Map<Participant, EditText> weightMap, Map<Participant, EditText> widgetMap, Participant p) {
-        if (isPayment) return;
+    private BigDecimal callPrefilledWeight(boolean isPayment, Map<Participant, EditText> weightMap, Map<Participant, EditText> widgetMap, Participant p) {
+        if (isPayment) return null;
         EditText amountField = widgetMap.get(p);
-        if (amountField == null) return;
+        if (amountField == null) return BigDecimal.ZERO;
         EditText weightField = weightMap.get(p);
-        if (weightField == null) return;
+        if (weightField == null) return BigDecimal.ZERO;
 
         UiUtils.makeProperNumberInput(weightField, getDecimalNumberInputUtil().getInputPatternMatcher());
 
         Amount desiredAmount = !isPayment ? this.amountTotalPayments : amountTotalDebits;
 
-        if (desiredAmount == null) return;
+        if (desiredAmount == null) return BigDecimal.ZERO;
         String amount = amountField.getText().toString();
         if (amount == null ||amount.isEmpty()) {
             amount = "0";
@@ -406,9 +444,11 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
             parsedNumber = 0d;
         }
 
-
-        Double calculatedWeight = new BigDecimal(parsedNumber.doubleValue()).multiply(BigDecimal.valueOf(100d)).divide(BigDecimal.valueOf(desiredAmount.getValue()), 2, RoundingMode.HALF_EVEN).doubleValue();
-        UiAmountViewUtils.writeDoubleToEditText(calculatedWeight, weightField, getLocale(), getDecimalNumberInputUtil());
+        if (!desiredAmount.getValue().equals(0d)) {
+            Double calculatedWeight = new BigDecimal(parsedNumber.doubleValue()).multiply(BigDecimal.valueOf(100d)).divide(BigDecimal.valueOf(desiredAmount.getValue()), 2, RoundingMode.HALF_EVEN).doubleValue();
+            return new BigDecimal(parsedNumber.doubleValue());//calculatedWeight);
+        }
+        return BigDecimal.ZERO;
         //weightField.setText();
     }
 
@@ -424,6 +464,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
     }
 
     Random rand = new Random();
+
 
     private void calculateWeightedAmounts(boolean isPayment, Map<Participant, EditText> weightParticipantToWidget, Map<Participant, EditText> amountParticipantToWidget) {
         Amount desiredAmount = !isPayment ? this.amountTotalPayments : amountTotalDebits;
@@ -530,6 +571,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
         for (View v : payerRows2) {
             tableLayout.removeView(v);
         }
+        tableLayout.removeAllViews();
     }
 
     private View inflate(int layoutId) {
@@ -573,7 +615,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
         spendingTable.setVisibility(visibility);
         relativeLayout.setVisibility(visibility);
 
-        final Spinner amountWeightSpinner = (Spinner) findViewById(R.id.paymentView_textView_payee_label_amount);
+        /*final Spinner amountWeightSpinner = (Spinner) findViewById(R.id.paymentView_textView_payee_label_amount);
         amountWeightSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -584,7 +626,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
-        });
+        });*/
 
         findViewById(R.id.paymentView_total_sum_value_divider).setVisibility(visibility);
         findViewById(R.id.paymentView_payee_createPaymentPayerTableLayout_total_sum_value).setVisibility(visibility);
@@ -625,7 +667,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
                 weightView.setVisibility(View.GONE);
             }
             if (amountView != null) {
-                float width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
+                float width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, getResources().getDisplayMetrics());
                 amountView.setWidth(Math.round(width));
                 amountView.setEnabled(true);
             }
@@ -769,7 +811,9 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
             buildPaymentInput();
             updatePayerSum();
         } else {
+            Log.i("PaymentEdit", "about to start buildDebitorInput in updateParticipants");
             buildDebitorInput();
+            Log.i("PaymentEdit", "just finished buildDebitorInput in updateParticipants");
             updateSpentSum();
         }
     }
@@ -789,8 +833,51 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
         });
     }
 
+    boolean isAmountInvalidated = false;
+
     private void bindAmountInput(final EditText widget, final Amount amount, final boolean isPayment) {
 
+        if (isPayment) {
+            widget.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    isAmountInvalidated = true;
+                }
+            });
+            widget.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+
+                    if (hasFocus) return;
+                    // find payer spinner state
+                    final Spinner spinner = (Spinner) findViewById(R.id.paymentView_textView_payee_label_amount);
+
+                    boolean amountMode = true;
+
+                    if (spinner != null && spinner.getSelectedItemPosition() == 1) {
+                        amountMode = false;
+                    }
+                    if (isAmountInvalidated && !amountMode && !amountTotalPayments.getValue().equals(0d)) {
+                        isAmountInvalidated = false;
+                        Log.i("PaymentEdit", "about to start buildDebitorInput in onFocusChange");
+                        buildDebitorInput();
+                        Log.i("PaymentEdit", "just finished buildDebitorInput in onFocusChange");
+                        isAmountInvalidated = false;
+                    }
+
+                }
+            });
+        }
         widget.addTextChangedListener(new BlankTextWatcher() {
             public void afterTextChanged(Editable s) {
                 String widgetInput = getDecimalNumberInputUtil().fixInputStringWidgetToParser(s.toString());
@@ -801,6 +888,7 @@ public class PaymentEditActivity extends ActionBarActivity implements DatePicker
                 amount.setValue(valueInput);
                 if (isPayment) {
                     PaymentEditActivity.this.updatePayerSum();
+
                 } else {
                     PaymentEditActivity.this.updateSpentSum();
                 }

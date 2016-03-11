@@ -68,56 +68,64 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/paymentView_upperHeader">
+
+                <TextView
+                    android:id="@+id/paymentView_textView_label_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:paddingLeft="5dp"
+                    android:textColor="@color/mainDark"
+                    android:textStyle="bold"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/payment_edit_view_textView_label_amount" />
+
+                <!--android:entries="@array/payment_edit_view_spinner_amount_weight"-->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/paymentView_textView_label_payed_by"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:paddingRight="10dp"
+                        android:textColor="@color/mainDark"
+                        android:textStyle="bold"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/payment_edit_view_label_payed_by"
+                        />
+                    <ImageButton
+                        android:id="@+id/paymentView_button_add_further_payees"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_expand_more"
+                        android:layout_gravity="bottom|right"
+                        android:layout_marginRight="4dip"
+                        android:background="@drawable/btn_circle"
+                        android:onClick="openParticipantSelectionPayer"
+                        android:contentDescription="@string/exchangeRateDeleteViewLabelSelectionOptionsDesc"
+
+                        />
+                </LinearLayout>
+            </RelativeLayout>
             <TableLayout
                 android:id="@+id/paymentView_createPaymentPayerTableLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/paymentView_upperHeader"
                 android:stretchColumns="3">
 
-                <TableRow>
-
-                    <TextView
-                        android:id="@+id/paymentView_textView_label_amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_gravity="bottom"
-                        android:paddingLeft="5dp"
-                        android:text="@string/payment_edit_view_textView_label_amount" />
-
-                        <!--android:entries="@array/payment_edit_view_spinner_amount_weight"-->
-                    <LinearLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_column="3"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/paymentView_textView_label_payed_by"
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
-                            android:layout_weight="1"
-                            android:paddingLeft="10dp"
-                            android:textColor="@color/mainDark"
-                            android:textStyle="bold"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:text="@string/payment_edit_view_label_payed_by"
-                            />
-                        <ImageButton
-                            android:id="@+id/paymentView_button_add_further_payees"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:src="@drawable/ic_expand_more"
-                            android:layout_gravity="bottom|right"
-                            android:layout_marginRight="4dip"
-                            android:background="@drawable/btn_circle"
-                            android:onClick="openParticipantSelectionPayer"
-                            android:contentDescription="@string/exchangeRateDeleteViewLabelSelectionOptionsDesc"
-
-                             />
-                    </LinearLayout>
-                </TableRow>
 
                 <View
                     android:id="@+id/paymentViewSpacerTopTop"
@@ -219,61 +227,63 @@
                     android:text="@string/payment_edit_view_label_radio_custom_split" />
             </RadioGroup>
 
+            <RelativeLayout
+                android:id="@+id/paymentView_header"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/paymentView_radioGroupTravellersCharged">
+
+                <Spinner
+                    android:id="@+id/paymentView_textView_payee_label_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="5dp"
+                    android:entries="@array/payment_edit_view_spinner_amount_weight"
+                    android:text="@string/payment_edit_view_textView_payee_label_amount" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/paymentView_textView_payee_label_payed_by"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:paddingRight="10dp"
+                        android:textColor="@color/mainDark"
+                        android:textStyle="bold"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/payment_edit_view_textView_payee_label_spent_by" />
+
+
+                    <ImageButton
+                        android:id="@+id/paymentView_button_payee_add_further_payees"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_expand_more"
+                        android:layout_gravity="bottom|right"
+                        android:layout_marginRight="4dip"
+                        android:onClick="openParticipantSelectionCharged"
+                        android:background="@drawable/btn_circle"
+                        android:contentDescription="@string/exchangeRateDeleteViewLabelSelectionOptionsDesc"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
 
             <TableLayout
                 android:id="@+id/paymentView_createSpendingTableLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/paymentView_radioGroupTravellersCharged"
-                android:stretchColumns="3">
+                android:layout_below="@id/paymentView_header"
+                >
+               <!-- android:stretchColumns="3">-->
 
-                <TableRow>
-
-                    <Spinner
-                        android:id="@+id/paymentView_textView_payee_label_amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_gravity="bottom|left"
-                        android:paddingLeft="5dp"
-                        android:layout_span="2"
-                        android:entries="@array/payment_edit_view_spinner_amount_weight"
-                        android:text="@string/payment_edit_view_textView_payee_label_amount" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="2"
-                        android:layout_span="2"
-                        android:layout_gravity="right"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/paymentView_textView_payee_label_payed_by"
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
-                            android:layout_weight="1"
-                            android:paddingLeft="10dp"
-                            android:textColor="@color/mainDark"
-                            android:textStyle="bold"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:text="@string/payment_edit_view_textView_payee_label_spent_by" />
-
-
-                        <ImageButton
-                            android:id="@+id/paymentView_button_payee_add_further_payees"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:src="@drawable/ic_expand_more"
-                            android:layout_gravity="bottom|right"
-                            android:layout_marginRight="4dip"
-                            android:onClick="openParticipantSelectionCharged"
-                            android:background="@drawable/btn_circle"
-                            android:contentDescription="@string/exchangeRateDeleteViewLabelSelectionOptionsDesc"
-                             />
-                    </LinearLayout>
-                </TableRow>
 
                 <View
                     android:id="@+id/paymentViewSpacerBottomTop"
